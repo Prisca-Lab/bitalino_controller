@@ -12,6 +12,7 @@ from yapsy.PluginManager import PluginManager
 
 BITALINO_LOCK = threading.Lock()
 
+
 class BitalinoController(BITalino):
     def __init__(self, macAddress, timeout=None):
         super(BitalinoController, self).__init__(macAddress, timeout)
@@ -40,13 +41,15 @@ class BitalinoController(BITalino):
             if user_input == '':
                 pass
             elif self.started and user_input != "/stop":
-                print("Error: the board is streaming data, use '/stop' before running other commands")
+                print(
+                    "Error: the board is streaming data, use '/stop' before running other commands")
             else:
                 # TODO: extend with other commands
                 if ("/start" == user_input):
                     # start streaming in a new thread
                     boardThread = threading.Thread(target=self.start_streaming,
-                                                   args=(callbacks_list, samplingRate, acq_channels, nb_samples),
+                                                   args=(
+                                                       callbacks_list, samplingRate, acq_channels, nb_samples),
                                                    name='worker')
                     boardThread.daemon = True
                     try:
@@ -102,7 +105,8 @@ def parse_args(manager):
     if args.info:
         plugin = manager.getPluginByName(args.info)
         if plugin == None:
-            print("Error: Plugin [{0}] not found or failed during load".format(args.info))
+            print(
+                "Error: Plugin [{0}] not found or failed during load".format(args.info))
         else:
             print(plugin.description)
             plugin.plugin_object.show_help()
@@ -116,14 +120,18 @@ def parse_args(manager):
         logging.info('---------LOG START-------------')
         logging.info(args)
 
-    activated_channels = [i for i, ltr in enumerate(args.channels) if ltr == '1']
-    deactivated_channels = [i for i, ltr in enumerate(args.channels) if ltr == '0']
+    activated_channels = [i for i, ltr in enumerate(
+        args.channels) if ltr == '1']
+    deactivated_channels = [
+        i for i, ltr in enumerate(args.channels) if ltr == '0']
     # check if the format of args.channel was correct by checking that activated_channels UNION deactivated_channels
     # equals [0, 1, 2, ..., 5]
     if len(set(range(6)) ^ set(activated_channels).union(set(deactivated_channels))) != 0:
         parser.error('Invalid --channels argument')
-
-    plugin_list, callbacks_list = activate_plugins(args, manager, args.sampling, activated_channels, args.nSamples)
+    print(f'act_channels: {activated_channels}')
+    activated_channels = [0, 1, 2, 3, 4, 5]
+    plugin_list, callbacks_list = activate_plugins(
+        args, manager, args.sampling, activated_channels, args.nSamples)
 
     return args.mac, args.sampling, args.nSamples, activated_channels, plugin_list, callbacks_list
 
@@ -137,7 +145,8 @@ def activate_plugins(args, manager, sampling_rate, acq_channels, nb_samples):
             plugin_args = plugin_description[1:]
             plugin = manager.getPluginByName(plugin_name)
             if plugin == None:
-                print("Error: Plugin [{0}] not found or failed during load".format(plugin_name))
+                print("Error: Plugin [{0}] not found or failed during load".format(
+                    plugin_name))
             else:
                 if not plugin.plugin_object.activate_plugin(plugin_args, sampling_rate, acq_channels, nb_samples):
                     print("Error while activating [{0}]".format(plugin_name))
@@ -149,8 +158,9 @@ def activate_plugins(args, manager, sampling_rate, acq_channels, nb_samples):
         print("WARNING: no plugins selected")
     return plugin_list, callbacks_list
 
+
 def deactivate_plugins(plugins_list):
-    for plugin in plugins_list: 
+    for plugin in plugins_list:
         plugin.deactivate_plugin()
 
 
@@ -172,7 +182,7 @@ if __name__ == '__main__':
     device.init(callbacks_list, sampling_rate, acq_channels, nb_samples)
     try:
         deactivate_plugins(callbacks_list)
-    finally: 
+    finally:
         device.close()
 
     print("The end")

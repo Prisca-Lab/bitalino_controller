@@ -1,4 +1,5 @@
 -e git+https://github.com/tibonihoo/yapsy.git#egg=yapsy&subdirectory=package
 pyserial
 bitalino
-
+pyqt5==5.15.7
+pyqtgraph==0.12.4
